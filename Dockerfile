@@ -70,8 +70,7 @@ RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
 ENV PATH /opt/conda/bin:$PATH
 
 # Install python packages with anaconda
-RUN conda install -c conda-forge opencv -y \
-	&& conda install -c anaconda seaborn -y \
+RUN conda install -c anaconda seaborn -y \
 	&& conda install -c conda-forge sas_kernel -y \
 	&& conda install -c anaconda pillow -y \
 	&& conda install -c conda-forge matplotlib -y \
