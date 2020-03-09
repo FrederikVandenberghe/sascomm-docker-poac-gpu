@@ -3,7 +3,7 @@ MAINTAINER Michael Gorkow <michael.gorkow@sas.com>
 
 # Add users and set passwords
 RUN useradd -U -m sas && useradd -g sas -m cas
-RUN echo "Orion123" | passwd root --stdin && echo "Orion123" | passwd sas --stdin && echo "Orion123" | passwd cas --stdin
+RUN echo "XXXXX" | passwd root --stdin && echo "XXXXX" | passwd sas --stdin && echo "XXXXX" | passwd cas --stdin
 
 # set ulimit values
 RUN echo "*     -     nofile     65536" >> /etc/security/limits.conf && echo "*     -     nproc      65536" >>/etc/security/limits.d/90-nproc.conf
@@ -25,9 +25,13 @@ WORKDIR /opt/sas/installfiles
 ADD SAS_Viya_deployment_data.zip /opt/sas/installfiles
 
 # Get orchestration tool and install.  Then build and untar playbook
-############################################ Modified Frederik  ##################
+# Get sas-orchestration from https://support.sas.com/en/documentation/install-center/viya/deployment-tools/35/command-line-interface.html
+# Get SAS_Viya_deployment_data.zip from you SAS Software Order email
 ADD  sas-orchestration /opt/sas/installfiles
-RUN /opt/sas/installfiles/sas-orchestration build --platform redhat --deployment-type programming --input SAS_Viya_deployment_data.zip --repository-warehouse http://10.132.0.20:9125/  && tar xvf SAS_Viya_playbook.tgz
+# SAS Viya mirror repository downloaded beforehand. The mirror is served with a web server running on port 9125.  
+# why-do-i-need-a-local-mirror-repository
+# https://github.com/sassoftware/sas-container-recipes/wiki/The-Basics
+RUN /opt/sas/installfiles/sas-orchestration build --platform redhat --deployment-type programming --input SAS_Viya_deployment_data.zip --repository-warehouse http://X.X.X.X:9125/  && tar xvf SAS_Viya_playbook.tgz
 WORKDIR /opt/sas/installfiles/sas_viya_playbook
 RUN mv /opt/sas/installfiles/sas_viya_playbook/inventory.ini /opt/sas/installfiles/sas_viya_playbook/inventory.ini.orig
 RUN cp /opt/sas/installfiles/sas_viya_playbook/samples/inventory_local.ini /opt/sas/installfiles/sas_viya_playbook/inventory.ini
@@ -84,12 +88,7 @@ RUN pip install jupyterlab && \
 	echo "c.NotebookApp.ip = '*'" >> /root/.jupyter/jupyter_notebook_config.py && \
 	echo "c.NotebookApp.notebook_dir = '/data'" >> /root/.jupyter/jupyter_notebook_config.py
 
-
-
-# Create homepage
-RUN touch /var/www/html/index.html && printf "%s" "<h1>Welcome to SAS ESP DeepLearn Docker</h1>" >> /var/www/html/index.html
 # Expose ports for Studio, CAS controller, and jupyter
-
 EXPOSE 80
 EXPOSE 5570
 EXPOSE 8888
@@ -97,4 +96,3 @@ EXPOSE 8888
 RUN pip install git+https://github.com/sassoftware/python-dlpy.git@master --upgrade
 RUN pip install "pandas==0.25.3"
 CMD /opt/sas/installfiles/start.sh
-
